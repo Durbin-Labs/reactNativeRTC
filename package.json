@@ -1,0 +1,53 @@
+{
+  "name": "reactnativertc",
+  "version": "0.9.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andyet/SimpleWebRTC.git"
+  },
+  "main": "./src/simplewebrtc.js",
+  "description": "SimpleWebRTC modified for use with react native",
+  "dependencies": {
+    "attachmediastream": "^2.0.0",
+    "filetransfer": "^2.0.4",
+    "localmedia": "^4.0.0",
+    "mockconsole": "0.0.1",
+    "react-native-webrtc": "^1.58.2",
+    "rtcpeerconnection": "^8.0.0",
+    "socket.io-client": "1.3.7",
+    "webrtcsupport": "^2.2.0",
+    "wildemitter": "^1.2.0"
+  },
+  "devDependencies": {
+    "browserify": "^13.1.0",
+    "chromedriver": "^2.29.0",
+    "geckodriver": "^1.6.1",
+    "precommit-hook": "^3.0.0",
+    "request": "^2.72.0",
+    "selenium-webdriver": "^3.0.1",
+    "tape": "^4.0.0",
+    "testling": "^1.7.1",
+    "travis-multirunner": "^3.0.0",
+    "uglify-js": "^2.7.3",
+    "stupid-server": "^0.2.2",
+    "webrtc-adapter": "^4.0.0"
+  },
+  "peerDependencies": {
+    "webrtc-adapter": "^4.0.0"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "node build.js",
+    "test-travis": "test/run-selenium",
+    "updateLatest": "./scripts/updateLatest.sh",
+    "lint": "jshint src",
+    "validate": "npm ls",
+    "test-page": "echo \"open https://0.0.0.0:8443/test/\" && stupid-server -s -h 0.0.0.0",
+    "test": "node test/selenium/index.js"
+  },
+  "pre-commit": [
+    "lint",
+    "validate"
+  ],
+  "false": {}
+}
