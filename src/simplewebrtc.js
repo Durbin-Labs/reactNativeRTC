@@ -1,15 +1,15 @@
 var WebRTC = require('./webrtc');
 var WildEmitter = require('wildemitter');
-var webrtcSupport = require('webrtcsupport');
-var attachMediaStream = require('attachmediastream');
-var mockconsole = require('mockconsole');
+// var webrtcSupport = require('webrtcsupport');
+// var attachMediaStream = require('attachmediastream');
+// var mockconsole = require('mockconsole');
 var SocketIoConnection = require('./socketioconnection');
 
 function SimpleWebRTC(opts) {
     var self = this;
     var options = opts || {};
     var config = this.config = {
-            url: 'https://sandbox.simplewebrtc.com:443/',
+            url: 'https://signal.durbintest.pro:83/',
             socketio: {/* 'force new connection':true*/},
             connection: null,
             debug: false,
@@ -34,7 +34,6 @@ function SimpleWebRTC(opts) {
                 muted: true
             }
         };
-    var item, connection;
 
     // We also allow a 'logger' option. It can be any object that implements
     // log, warn, and error methods.
@@ -53,6 +52,7 @@ function SimpleWebRTC(opts) {
         }
     }();
 
+    var item;
     // set our config from options
     for (item in options) {
         if (options.hasOwnProperty(item)) {
@@ -60,12 +60,16 @@ function SimpleWebRTC(opts) {
         }
     }
 
+    /**
+     * removing browser specific code
+     */
     // attach detected support for convenience
-    this.capabilities = webrtcSupport;
+    // this.capabilities = webrtcSupport;
 
     // call WildEmitter constructor
     WildEmitter.call(this);
 
+    var connection;
     // create default SocketIoConnection if it's not passed in
     if (this.config.connection === null) {
         connection = this.connection = new SocketIoConnection(this.config);
@@ -277,6 +281,9 @@ SimpleWebRTC.prototype.disconnect = function () {
     delete this.connection;
 };
 
+/**
+ * probably needs rewrite
+ */
 SimpleWebRTC.prototype.handlePeerStreamAdded = function (peer) {
     var self = this;
     var container = this.getRemoteVideoContainer();
@@ -304,6 +311,9 @@ SimpleWebRTC.prototype.handlePeerStreamAdded = function (peer) {
     }, 250);
 };
 
+/**
+ * probably needs rewrite
+ */
 SimpleWebRTC.prototype.handlePeerStreamRemoved = function (peer) {
     var container = this.getRemoteVideoContainer();
     var videoEl = peer.videoEl;
@@ -313,6 +323,9 @@ SimpleWebRTC.prototype.handlePeerStreamRemoved = function (peer) {
     if (videoEl) this.emit('videoRemoved', videoEl, peer);
 };
 
+/**
+ * probably needs rewrite
+ */
 SimpleWebRTC.prototype.getDomId = function (peer) {
     return [peer.id, peer.type, peer.broadcaster ? 'broadcasting' : 'incoming'].join('_');
 };
@@ -361,6 +374,9 @@ SimpleWebRTC.prototype.joinRoom = function (name, cb) {
     });
 };
 
+/**
+ * probably needs rewrite
+ */
 SimpleWebRTC.prototype.getEl = function (idOrEl) {
     if (typeof idOrEl === 'string') {
         return document.getElementById(idOrEl);
@@ -369,6 +385,9 @@ SimpleWebRTC.prototype.getEl = function (idOrEl) {
     }
 };
 
+/**
+ * probably needs rewrite
+ */
 SimpleWebRTC.prototype.startLocalVideo = function () {
     var self = this;
     this.webrtc.start(this.config.media, function (err, stream) {
@@ -384,6 +403,9 @@ SimpleWebRTC.prototype.stopLocalVideo = function () {
     this.webrtc.stop();
 };
 
+/**
+ * needs rewrite
+ */
 // this accepts either element ID or element
 // and either the video tag itself or a container
 // that will be used to put the video tag into.
@@ -402,6 +424,9 @@ SimpleWebRTC.prototype.getLocalVideoContainer = function () {
     }
 };
 
+/**
+ * probably needs rewrite
+ */
 SimpleWebRTC.prototype.getRemoteVideoContainer = function () {
     return this.getEl(this.config.remoteVideosEl);
 };

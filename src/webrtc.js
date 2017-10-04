@@ -1,6 +1,7 @@
 var util = require('util');
-var webrtcSupport = require('webrtcsupport');
-var mockconsole = require('mockconsole');
+// var webrtcSupport = require('webrtcsupport');
+// var mockconsole = require('mockconsole');
+var WebRTC = require('react-native-webrtc');
 var localMedia = require('localmedia');
 var Peer = require('./peer');
 
@@ -11,7 +12,7 @@ function WebRTC(opts) {
             debug: false,
             // makes the entire PC config overridable
             peerConnectionConfig: {
-                iceServers: [{'urls': 'stun:stun.l.google.com:19302'}]
+                iceServers: [{'urls': 'stun:turn.durbintest.pro:3478'}]
             },
             peerConnectionConstraints: {
                 optional: []
@@ -22,7 +23,6 @@ function WebRTC(opts) {
             },
             enableDataChannels: true
         };
-    var item;
 
     // We also allow a 'logger' option. It can be any object that implements
     // log, warn, and error methods.
@@ -42,20 +42,27 @@ function WebRTC(opts) {
     }();
 
     // set options
+    var item;
     for (item in options) {
         if (options.hasOwnProperty(item)) {
             this.config[item] = options[item];
         }
     }
 
+    /**
+     * removing browser specific code
+     */
     // check for support
-    if (!webrtcSupport.support) {
-        this.logger.error('Your browser doesn\'t seem to support WebRTC');
-    }
+    // if (!webrtcSupport.support) {
+    //     this.logger.error('Your browser doesn\'t seem to support WebRTC');
+    // }
 
     // where we'll store our peer connections
     this.peers = [];
 
+    /**
+     * needs rewrite
+     */
     // call localMedia constructor
     localMedia.call(this, this.config);
 

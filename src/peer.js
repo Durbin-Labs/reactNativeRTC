@@ -1,12 +1,20 @@
 var util = require('util');
-var webrtcSupport = require('webrtcsupport');
+// var webrtcSupport = require('webrtcsupport');
+var WebRTC = require('react-native-webrtc');
+/**
+ * needs rewrite: rtcpeerconnection module needs rewrite
+ */
 var PeerConnection = require('rtcpeerconnection');
 var WildEmitter = require('wildemitter');
 var FileTransfer = require('filetransfer');
 
 // the inband-v1 protocol is sending metadata inband in a serialized JSON object
 // followed by the actual data. Receiver closes the datachannel upon completion
-var INBAND_FILETRANSFER_V1 = 'https://simplewebrtc.com/protocol/filetransfer#inband-v1';
+
+/** 
+* rewrite: removed file transfer related stuff
+*/
+// var INBAND_FILETRANSFER_V1 = 'https://simplewebrtc.com/protocol/filetransfer#inband-v1';
 
 function isAllTracksEnded(stream) {
     var isAllTracksEnded = true;
@@ -48,7 +56,10 @@ function Peer(options) {
         self.send('answer', answer);
     });
     this.pc.on('addStream', this.handleRemoteStreamAdded.bind(this));
-    this.pc.on('addChannel', this.handleDataChannelAdded.bind(this));
+    /**
+     * rewrite: no data channel needed
+     */
+    // this.pc.on('addChannel', this.handleDataChannelAdded.bind(this));
     this.pc.on('removeStream', this.handleStreamRemoved.bind(this));
     // Just fire negotiation needed events for now
     // When browser re-negotiation handling seems to work
@@ -109,6 +120,9 @@ util.inherits(Peer, WildEmitter);
 Peer.prototype.handleMessage = function (message) {
     var self = this;
 
+    /**
+     * probably needs rewrite
+     */
     this.logger.log('getting', message.type, message);
 
     if (message.prefix) this.browserPrefix = message.prefix;
@@ -149,6 +163,9 @@ Peer.prototype.handleMessage = function (message) {
     }
 };
 
+/**
+ * rewrite: removed webrtcSupport.prefix
+ */
 // send via signalling channel
 Peer.prototype.send = function (messageType, payload) {
     var message = {
@@ -158,12 +175,18 @@ Peer.prototype.send = function (messageType, payload) {
         roomType: this.type,
         type: messageType,
         payload: payload,
-        prefix: webrtcSupport.prefix
+        // prefix: webrtcSupport.prefix
     };
+    /** 
+     * probably needs rewrite: replace or add logger in appropriate place
+     */
     this.logger.log('sending', messageType, message);
     this.parent.emit('message', message);
 };
 
+/**
+ * probably needs rewrite: remove data channel related stuff
+ */
 // send via data channel
 // returns true when message was sent and false if channel is not open
 Peer.prototype.sendDirectly = function (channel, messageType, payload) {
@@ -178,6 +201,9 @@ Peer.prototype.sendDirectly = function (channel, messageType, payload) {
     return true;
 };
 
+/**
+ * probably needs rewrite: remove data channel related stuff
+ */
 // Internal method registering handlers for a data channel and emitting events on the peer
 Peer.prototype._observeDataChannel = function (channel) {
     var self = this;
@@ -189,6 +215,9 @@ Peer.prototype._observeDataChannel = function (channel) {
     channel.onopen = this.emit.bind(this, 'channelOpen', channel);
 };
 
+/**
+ * probably needs rewrite: remove data channel related stuff
+ */
 // Fetch or create a data channel by the given name
 Peer.prototype.getDataChannel = function (name, opts) {
     if (!webrtcSupport.supportDataChannel) return this.emit('error', new Error('createDataChannel not supported'));
@@ -205,6 +234,9 @@ Peer.prototype.onIceCandidate = function (candidate) {
     if (this.closed) return;
     if (candidate) {
         var pcConfig = this.parent.config.peerConnectionConfig;
+        /**
+         * rewrite: needs rewrite
+         */
         if (webrtcSupport.prefix === 'moz' && pcConfig && pcConfig.iceTransports &&
                 candidate.candidate && candidate.candidate.candidate &&
                 candidate.candidate.candidate.indexOf(pcConfig.iceTransports) < 0) {
@@ -224,6 +256,9 @@ Peer.prototype.start = function () {
     // a) create a datachannel a priori
     // b) do a renegotiation later to add the SCTP m-line
     // Let's do (a) first...
+    /**
+     * needs rewrite: remove data channel related stuff
+     */
     if (this.enableDataChannels) {
         this.getDataChannel('simplewebrtc');
     }
@@ -245,6 +280,9 @@ Peer.prototype.end = function () {
     this.handleStreamRemoved();
 };
 
+/**
+ * probably needs rewrite: handle logger in appropriate place 
+ */
 Peer.prototype.handleRemoteStreamAdded = function (event) {
     var self = this;
     if (this.stream) {
@@ -273,30 +311,36 @@ Peer.prototype.handleStreamRemoved = function () {
     }
 };
 
+/**
+ * probably needs rewrite: remove datachannel related stuff
+ */
 Peer.prototype.handleDataChannelAdded = function (channel) {
     this.channels[channel.label] = channel;
     this._observeDataChannel(channel);
 };
 
-Peer.prototype.sendFile = function (file) {
-    var sender = new FileTransfer.Sender();
-    var dc = this.getDataChannel('filetransfer' + (new Date()).getTime(), {
-        protocol: INBAND_FILETRANSFER_V1
-    });
-    // override onopen
-    dc.onopen = function () {
-        dc.send(JSON.stringify({
-            size: file.size,
-            name: file.name
-        }));
-        sender.send(file, dc);
-    };
-    // override onclose
-    dc.onclose = function () {
-        console.log('sender received transfer');
-        sender.emit('complete');
-    };
-    return sender;
-};
+/**
+ * rewrite: removed sendFile
+ */
+// Peer.prototype.sendFile = function (file) {
+//     var sender = new FileTransfer.Sender();
+//     var dc = this.getDataChannel('filetransfer' + (new Date()).getTime(), {
+//         protocol: INBAND_FILETRANSFER_V1
+//     });
+//     // override onopen
+//     dc.onopen = function () {
+//         dc.send(JSON.stringify({
+//             size: file.size,
+//             name: file.name
+//         }));
+//         sender.send(file, dc);
+//     };
+//     // override onclose
+//     dc.onclose = function () {
+//         console.log('sender received transfer');
+//         sender.emit('complete');
+//     };
+//     return sender;
+// };
 
 module.exports = Peer;
