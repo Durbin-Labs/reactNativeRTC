@@ -12,6 +12,7 @@
     "mockconsole": "0.0.1",
     "rtcpeerconnection": "git+ssh://git@github.com/Durbin-Labs/reactNativePeerConnection.git",
     "socket.io-client": "1.3.7",
+    "util": "^0.10.3",
     "webrtcsupport": "^2.2.0",
     "wildemitter": "^1.2.0"
   },
@@ -42,9 +43,5 @@
     "test-page": "echo \"open https://0.0.0.0:8443/test/\" && stupid-server -s -h 0.0.0.0",
     "test": "node test/selenium/index.js"
   },
-  "pre-commit": [
-    "lint",
-    "validate"
-  ],
   "false": {}
 }
