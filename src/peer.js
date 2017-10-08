@@ -6,7 +6,7 @@ var WebRTC = require('react-native-webrtc');
  */
 var PeerConnection = require('rtcpeerconnection');
 var WildEmitter = require('wildemitter');
-var FileTransfer = require('filetransfer');
+// var FileTransfer = require('filetransfer');
 
 // the inband-v1 protocol is sending metadata inband in a serialized JSON object
 // followed by the actual data. Receiver closes the datachannel upon completion
