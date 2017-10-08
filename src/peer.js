@@ -2,7 +2,7 @@ var util = require('util');
 // var webrtcSupport = require('webrtcsupport');
 var WebRTC = require('react-native-webrtc');
 /**
- * needs rewrite: rtcpeerconnection module needs rewrite
+ * rewrite: rtcpeerconnection module rewrite
  */
 var PeerConnection = require('rtcpeerconnection');
 var WildEmitter = require('wildemitter');
@@ -95,19 +95,22 @@ function Peer(options) {
         });
     }
 
-    this.on('channelOpen', function (channel) {
-        if (channel.protocol === INBAND_FILETRANSFER_V1) {
-            channel.onmessage = function (event) {
-                var metadata = JSON.parse(event.data);
-                var receiver = new FileTransfer.Receiver();
-                receiver.receive(metadata, channel);
-                self.emit('fileTransfer', metadata, receiver);
-                receiver.on('receivedFile', function (file, metadata) {
-                    receiver.channel.close();
-                });
-            };
-        }
-    });
+    /**
+     * rewrite: removed
+     */
+    // this.on('channelOpen', function (channel) {
+    //     if (channel.protocol === INBAND_FILETRANSFER_V1) {
+    //         channel.onmessage = function (event) {
+    //             var metadata = JSON.parse(event.data);
+    //             var receiver = new FileTransfer.Receiver();
+    //             receiver.receive(metadata, channel);
+    //             self.emit('fileTransfer', metadata, receiver);
+    //             receiver.on('receivedFile', function (file, metadata) {
+    //                 receiver.channel.close();
+    //             });
+    //         };
+    //     }
+    // });
 
     // proxy events to parent
     this.on('*', function () {
@@ -185,65 +188,66 @@ Peer.prototype.send = function (messageType, payload) {
 };
 
 /**
- * probably needs rewrite: remove data channel related stuff
+ * rewrite: removed data channel related stuff
  */
 // send via data channel
 // returns true when message was sent and false if channel is not open
-Peer.prototype.sendDirectly = function (channel, messageType, payload) {
-    var message = {
-        type: messageType,
-        payload: payload
-    };
-    this.logger.log('sending via datachannel', channel, messageType, message);
-    var dc = this.getDataChannel(channel);
-    if (dc.readyState != 'open') return false;
-    dc.send(JSON.stringify(message));
-    return true;
-};
+// Peer.prototype.sendDirectly = function (channel, messageType, payload) {
+//     var message = {
+//         type: messageType,
+//         payload: payload
+//     };
+//     this.logger.log('sending via datachannel', channel, messageType, message);
+//     var dc = this.getDataChannel(channel);
+//     if (dc.readyState != 'open') return false;
+//     dc.send(JSON.stringify(message));
+//     return true;
+// };
 
 /**
- * probably needs rewrite: remove data channel related stuff
+ * rewrite: removed data channel related stuff
  */
 // Internal method registering handlers for a data channel and emitting events on the peer
-Peer.prototype._observeDataChannel = function (channel) {
-    var self = this;
-    channel.onclose = this.emit.bind(this, 'channelClose', channel);
-    channel.onerror = this.emit.bind(this, 'channelError', channel);
-    channel.onmessage = function (event) {
-        self.emit('channelMessage', self, channel.label, JSON.parse(event.data), channel, event);
-    };
-    channel.onopen = this.emit.bind(this, 'channelOpen', channel);
-};
+// Peer.prototype._observeDataChannel = function (channel) {
+//     var self = this;
+//     channel.onclose = this.emit.bind(this, 'channelClose', channel);
+//     channel.onerror = this.emit.bind(this, 'channelError', channel);
+//     channel.onmessage = function (event) {
+//         self.emit('channelMessage', self, channel.label, JSON.parse(event.data), channel, event);
+//     };
+//     channel.onopen = this.emit.bind(this, 'channelOpen', channel);
+// };
 
 /**
- * probably needs rewrite: remove data channel related stuff
+ * rewrite: removed data channel related stuff
  */
 // Fetch or create a data channel by the given name
-Peer.prototype.getDataChannel = function (name, opts) {
-    if (!webrtcSupport.supportDataChannel) return this.emit('error', new Error('createDataChannel not supported'));
-    var channel = this.channels[name];
-    opts || (opts = {});
-    if (channel) return channel;
-    // if we don't have one by this label, create it
-    channel = this.channels[name] = this.pc.createDataChannel(name, opts);
-    this._observeDataChannel(channel);
-    return channel;
-};
+// Peer.prototype.getDataChannel = function (name, opts) {
+//     if (!webrtcSupport.supportDataChannel) return this.emit('error', new Error('createDataChannel not supported'));
+//     var channel = this.channels[name];
+//     opts || (opts = {});
+//     if (channel) return channel;
+//     // if we don't have one by this label, create it
+//     channel = this.channels[name] = this.pc.createDataChannel(name, opts);
+//     this._observeDataChannel(channel);
+//     return channel;
+// };
 
 Peer.prototype.onIceCandidate = function (candidate) {
     if (this.closed) return;
     if (candidate) {
         var pcConfig = this.parent.config.peerConnectionConfig;
         /**
-         * rewrite: needs rewrite
+         * rewrite: removed browser specific code
          */
-        if (webrtcSupport.prefix === 'moz' && pcConfig && pcConfig.iceTransports &&
-                candidate.candidate && candidate.candidate.candidate &&
-                candidate.candidate.candidate.indexOf(pcConfig.iceTransports) < 0) {
-            this.logger.log('Ignoring ice candidate not matching pcConfig iceTransports type: ', pcConfig.iceTransports);
-        } else {
-            this.send('candidate', candidate);
-        }
+        // if (webrtcSupport.prefix === 'moz' && pcConfig && pcConfig.iceTransports &&
+        //         candidate.candidate && candidate.candidate.candidate &&
+        //         candidate.candidate.candidate.indexOf(pcConfig.iceTransports) < 0) {
+        //     this.logger.log('Ignoring ice candidate not matching pcConfig iceTransports type: ', pcConfig.iceTransports);
+        // } else {
+        //     this.send('candidate', candidate);
+        // }
+        this.send('candidate', candidate);
     } else {
         this.logger.log("End of candidates.");
     }
@@ -257,11 +261,11 @@ Peer.prototype.start = function () {
     // b) do a renegotiation later to add the SCTP m-line
     // Let's do (a) first...
     /**
-     * needs rewrite: remove data channel related stuff
+     * rewrite: removed data channel related stuff
      */
-    if (this.enableDataChannels) {
-        this.getDataChannel('simplewebrtc');
-    }
+    // if (this.enableDataChannels) {
+    //     this.getDataChannel('simplewebrtc');
+    // }
 
     this.pc.offer(this.receiveMedia, function (err, sessionDescription) {
         //self.send('offer', sessionDescription);
@@ -280,9 +284,7 @@ Peer.prototype.end = function () {
     this.handleStreamRemoved();
 };
 
-/**
- * probably needs rewrite: handle logger in appropriate place 
- */
+
 Peer.prototype.handleRemoteStreamAdded = function (event) {
     var self = this;
     if (this.stream) {
@@ -312,12 +314,12 @@ Peer.prototype.handleStreamRemoved = function () {
 };
 
 /**
- * probably needs rewrite: remove datachannel related stuff
+ * rewrite: remove datachannel related stuff
  */
-Peer.prototype.handleDataChannelAdded = function (channel) {
-    this.channels[channel.label] = channel;
-    this._observeDataChannel(channel);
-};
+// Peer.prototype.handleDataChannelAdded = function (channel) {
+//     this.channels[channel.label] = channel;
+//     this._observeDataChannel(channel);
+// };
 
 /**
  * rewrite: removed sendFile

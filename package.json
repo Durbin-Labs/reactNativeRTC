@@ -8,12 +8,9 @@
   "main": "./src/simplewebrtc.js",
   "description": "SimpleWebRTC modified for use with react native",
   "dependencies": {
-    "attachmediastream": "^2.0.0",
-    "filetransfer": "^2.0.4",
-    "localmedia": "^4.0.0",
+    "localmedia": "git+ssh://git@github.com/Durbin-Labs/reactNativeLocalMedia.git",
     "mockconsole": "0.0.1",
-    "react-native-webrtc": "^1.58.2",
-    "rtcpeerconnection": "^8.0.0",
+    "rtcpeerconnection": "git+ssh://git@github.com/Durbin-Labs/reactNativePeerConnection.git",
     "socket.io-client": "1.3.7",
     "webrtcsupport": "^2.2.0",
     "wildemitter": "^1.2.0"

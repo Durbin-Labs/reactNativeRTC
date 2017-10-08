@@ -1,7 +1,5 @@
 var util = require('util');
-// var webrtcSupport = require('webrtcsupport');
-// var mockconsole = require('mockconsole');
-var WebRTC = require('react-native-webrtc');
+var mockconsole = require('mockconsole');
 var localMedia = require('localmedia');
 var Peer = require('./peer');
 
@@ -21,7 +19,7 @@ function WebRTC(opts) {
                 offerToReceiveAudio: 1,
                 offerToReceiveVideo: 1
             },
-            enableDataChannels: true
+            enableDataChannels: false
         };
 
     // We also allow a 'logger' option. It can be any object that implements
@@ -50,7 +48,7 @@ function WebRTC(opts) {
     }
 
     /**
-     * removing browser specific code
+     * rewrite: removing browser specific code
      */
     // check for support
     // if (!webrtcSupport.support) {
@@ -61,47 +59,50 @@ function WebRTC(opts) {
     this.peers = [];
 
     /**
-     * needs rewrite
+     * needs rewrite: localmedia module needs rewrite
      */
     // call localMedia constructor
     localMedia.call(this, this.config);
 
-    this.on('speaking', function () {
-        if (!self.hardMuted) {
-            // FIXME: should use sendDirectlyToAll, but currently has different semantics wrt payload
-            self.peers.forEach(function (peer) {
-                if (peer.enableDataChannels) {
-                    var dc = peer.getDataChannel('hark');
-                    if (dc.readyState != 'open') return;
-                    dc.send(JSON.stringify({type: 'speaking'}));
-                }
-            });
-        }
-    });
-    this.on('stoppedSpeaking', function () {
-        if (!self.hardMuted) {
-            // FIXME: should use sendDirectlyToAll, but currently has different semantics wrt payload
-            self.peers.forEach(function (peer) {
-                if (peer.enableDataChannels) {
-                    var dc = peer.getDataChannel('hark');
-                    if (dc.readyState != 'open') return;
-                    dc.send(JSON.stringify({type: 'stoppedSpeaking'}));
-                }
-            });
-        }
-    });
-    this.on('volumeChange', function (volume, treshold) {
-        if (!self.hardMuted) {
-            // FIXME: should use sendDirectlyToAll, but currently has different semantics wrt payload
-            self.peers.forEach(function (peer) {
-                if (peer.enableDataChannels) {
-                    var dc = peer.getDataChannel('hark');
-                    if (dc.readyState != 'open') return;
-                    dc.send(JSON.stringify({type: 'volume', volume: volume }));
-                }
-            });
-        }
-    });
+    /**
+     * rewrite: removed code that looks unnecessary, involves datachannel
+     */
+    // this.on('speaking', function () {
+    //     if (!self.hardMuted) {
+    //         // FIXME: should use sendDirectlyToAll, but currently has different semantics wrt payload
+    //         self.peers.forEach(function (peer) {
+    //             if (peer.enableDataChannels) {
+    //                 var dc = peer.getDataChannel('hark');
+    //                 if (dc.readyState != 'open') return;
+    //                 dc.send(JSON.stringify({type: 'speaking'}));
+    //             }
+    //         });
+    //     }
+    // });
+    // this.on('stoppedSpeaking', function () {
+    //     if (!self.hardMuted) {
+    //         // FIXME: should use sendDirectlyToAll, but currently has different semantics wrt payload
+    //         self.peers.forEach(function (peer) {
+    //             if (peer.enableDataChannels) {
+    //                 var dc = peer.getDataChannel('hark');
+    //                 if (dc.readyState != 'open') return;
+    //                 dc.send(JSON.stringify({type: 'stoppedSpeaking'}));
+    //             }
+    //         });
+    //     }
+    // });
+    // this.on('volumeChange', function (volume, treshold) {
+    //     if (!self.hardMuted) {
+    //         // FIXME: should use sendDirectlyToAll, but currently has different semantics wrt payload
+    //         self.peers.forEach(function (peer) {
+    //             if (peer.enableDataChannels) {
+    //                 var dc = peer.getDataChannel('hark');
+    //                 if (dc.readyState != 'open') return;
+    //                 dc.send(JSON.stringify({type: 'volume', volume: volume }));
+    //             }
+    //         });
+    //     }
+    // });
 
     // log events in debug mode
     if (this.config.debug) {
@@ -150,14 +151,17 @@ WebRTC.prototype.sendToAll = function (message, payload) {
     });
 };
 
+/**
+ * rewrite: removed datachannel realated code
+ */
 // sends message to all using a datachannel
 // only sends to anyone who has an open datachannel
-WebRTC.prototype.sendDirectlyToAll = function (channel, message, payload) {
-    this.peers.forEach(function (peer) {
-        if (peer.enableDataChannels) {
-            peer.sendDirectly(channel, message, payload);
-        }
-    });
-};
+// WebRTC.prototype.sendDirectlyToAll = function (channel, message, payload) {
+//     this.peers.forEach(function (peer) {
+//         if (peer.enableDataChannels) {
+//             peer.sendDirectly(channel, message, payload);
+//         }
+//     });
+// };
 
 module.exports = WebRTC;
