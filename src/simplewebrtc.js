@@ -27,8 +27,16 @@ function SimpleWebRTC(opts) {
             adjustPeerVolume: false,
             peerVolumeWhenSpeaking: 0.25,
             media: {
-                video: true,
-                audio: true
+                audio: true,
+                video: {
+                  mandatory: {
+                    minWidth: 500,
+                    minHeight: 500,
+                    minFrameRate: 30,
+                  },
+                  facingMode: ("user"),
+                  optional: ([]),
+                }
             },
             receiveMedia: {
                 offerToReceiveAudio: 1,
