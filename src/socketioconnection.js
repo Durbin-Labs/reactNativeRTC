@@ -1,3 +1,7 @@
+var React = require('react-native');
+
+window.navigator.userAgent = 'react-native';
+
 var io = require('socket.io-client');
 
 function SocketIoConnection(config) {
