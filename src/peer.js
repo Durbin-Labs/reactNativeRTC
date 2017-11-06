@@ -24,6 +24,77 @@ function isAllTracksEnded(stream) {
     return isAllTracksEnded;
 }
 
+var prioritizeVideoCodecs = function(payload) {
+    var priority =  ["VP9","VP8","H.264","H.264"];  // ordered priority list, first = highest priority
+    var ids = [];
+    Object.keys(priority).forEach(function (key) {
+        var id = findCodecId(payload, priority[key]);
+        if (id) {
+            ids.push(id);
+        }
+    });
+    if (ids.length > 0 && payload && payload.sdp) {
+        var sdp = payload.sdp;
+        var m = sdp.match(/m=video\s(\d+)\s[A-Z\/]+\s([0-9\ ]+)/);
+        if (m !== null && m.length === 3) {
+            var candidates = m[2].split(" ");
+            var prioritized = ids;
+            Object.keys(candidates).forEach(function (key) {
+                if (ids.indexOf(candidates[key]) === -1) {
+                    //prioritized.push(121);
+                    prioritized.push(candidates[key]);
+                }
+            });
+            var mPrioritized = m[0].replace(m[2], prioritized.join(" "));
+          //  logger.info("Setting video codec priority. \"%s\"", mPrioritized);
+            payload.sdp = sdp.replace(m[0], mPrioritized);
+
+
+        }
+    }
+    return payload;
+};
+
+var prioritizeAudioCodecs = function(payload) {
+   // logger.info(payload);
+    // ,"telephone-event" "opus"
+    var priority = ["iLBC","PCMU","opus","telephone-event"];
+    var ids = [];
+    Object.keys(priority).forEach(function (key) {
+        var id = findCodecId(payload, priority[key]);
+        if (id) {
+            ids.push(id);
+        }
+    });
+    if (ids.length > 0 && payload && payload.sdp) {
+        var sdp = payload.sdp;
+        var m = sdp.match(/m=audio\s(\d+)\s[A-Z\/]+\s([0-9\ ]+)/);
+        if (m !== null && m.length === 3) {
+            var candidates = m[2].split(" ");
+            var prioritized = ids;
+            Object.keys(candidates).forEach(function (key) {
+                if (ids.indexOf(candidates[key]) === -1) {
+                    //prioritized.push(121);
+                    prioritized.push(candidates[key]);
+                }
+            });
+            var mPrioritized = m[0].replace(m[2], prioritized.join(" "));
+        //    logger.info("audio codec Details: . \"%s\"", mPrioritized);
+            //When Need To Modifiy Priority
+            payload.sdp = sdp.replace(m[0], mPrioritized);
+        }
+    }
+  /*  var maxAvgBitRate = config.maxAverageBitRate || 0;
+    if (maxAvgBitRate > 0) {
+        var id = findCodecId(details, "opus");
+        if (id && details.payload && details.payload.sdp) {
+            details.payload.sdp = alterFmtpConfig(details.payload.sdp, id, {"maxaveragebitrate": maxAvgBitRate});
+        }
+    }*/
+    return payload;
+};
+
+
 function Peer(options) {
     var self = this;
 
@@ -48,6 +119,8 @@ function Peer(options) {
         self.send('endOfCandidates', event);
     });
     this.pc.on('offer', function (offer) {
+        offer = prioritizeVideoCodecs(offer);
+        offer = prioritizeAudioCodecs(offer);
         if (self.parent.config.nick) offer.nick = self.parent.config.nick;
         self.send('offer', offer);
     });
