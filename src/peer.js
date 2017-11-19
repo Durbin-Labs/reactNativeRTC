@@ -24,6 +24,18 @@ function isAllTracksEnded(stream) {
     return isAllTracksEnded;
 }
 
+var findCodecId = function(payload, codec) {
+    if (payload && payload.sdp) {
+        var pattern = "a=rtpmap\\:(\\d+)\\s" + codec + "\\/\\d+";
+        var re = new RegExp(pattern);
+        var m = payload.sdp.match(re);
+        if (m !== null && m.length > 0) {
+            return m[1];
+        }
+    }
+    return null;
+};
+
 var prioritizeVideoCodecs = function(payload) {
     var priority =  ["VP9","VP8","H.264","H.264"];  // ordered priority list, first = highest priority
     var ids = [];
@@ -341,7 +353,7 @@ Peer.prototype.start = function () {
     // }
 
     this.pc.offer(this.receiveMedia, function (err, sessionDescription) {
-        self.send('offer', sessionDescription);
+        // self.send('offer', sessionDescription);
     });
 };
 
