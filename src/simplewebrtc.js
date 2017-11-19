@@ -419,9 +419,10 @@ SimpleWebRTC.prototype.joinRoom = function (name, cb) {
 /**
  * rewrite: just emit local stream
  */
-SimpleWebRTC.prototype.startLocalVideo = function () {
+SimpleWebRTC.prototype.startLocalVideo = function (mediaConfig) {
     var self = this;
-    this.webrtc.start(this.config.media, function (err, stream) {
+    if(!mediaConfig) mediaConfig = this.config.media;
+    this.webrtc.start(mediaConfig, function (err, stream) {
         if (err) {
             self.emit('localMediaError', err);
         } else {
