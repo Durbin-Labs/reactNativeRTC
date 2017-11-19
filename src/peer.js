@@ -341,7 +341,7 @@ Peer.prototype.start = function () {
     // }
 
     this.pc.offer(this.receiveMedia, function (err, sessionDescription) {
-        //self.send('offer', sessionDescription);
+        self.send('offer', sessionDescription);
     });
 };
 
